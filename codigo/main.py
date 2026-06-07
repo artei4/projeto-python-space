@@ -1,5 +1,4 @@
 import math
-
 from datetime import datetime
 
 def gerador_id(contador):
@@ -7,10 +6,10 @@ def gerador_id(contador):
     return contador
 
 def cadastrar_sat(id_do_sat):
-    esc=True
+    verificador=True
     nome = input("Digite o nome do satélite ")
     distancia = float(input("Digite a altitude do satélite "))
-    while esc:
+    while verificador:
         tipo_escolha=input('Digite o tipo de satélite\n'
                    '1- Geoestacionário\n'
                    '2- Média orbita\n'
@@ -19,13 +18,13 @@ def cadastrar_sat(id_do_sat):
         match tipo_escolha:
             case '1':
                 tipo='Geoestacionário'
-                esc=False
+                verificador=False
             case '2':
                 tipo='Média orbita'
-                esc=False
+                verificador=False
             case '3':
                 tipo='Baixa orbita'
-                esc=False
+                verificador=False
             case _:
                 print('Escolha entre tipo 1, 2 ou 3')
     momento_do_cadastro=datetime.now()
@@ -47,23 +46,17 @@ def calcular_distancia(satelitex):
     match satelitex['tipo de satélite']:
         case 'Geoestacionário':
             distancia_final=satelitex['distância']
-        case 'Média orbita':
+        case 'Média orbita'|'Baixa orbita':
             t=calcular_diferenca_de_tempo(satelitex['cadastrado em'])
             raio_terra=6371
             altitude=satelitex['distância']
-            velocidade=4
+            if satelitex['tipo de satélite']=='Média orbita':
+                velocidade=4
+            else:
+                velocidade = 7.8
             r=raio_terra+altitude
             theta=(velocidade*t)/r
             distancia_final=math.sqrt(r ** 2 + raio_terra ** 2 - 2 * r * raio_terra * math.cos(theta))
-        case 'Baixa orbita':
-            t = calcular_diferenca_de_tempo(satelitex['cadastrado em'])
-            raio_terra = 6371
-            altitude = satelitex['distância']
-            velocidade = 7.8
-            r = raio_terra + altitude
-            theta = (velocidade * t) / r
-            distancia_final = math.sqrt(r ** 2 + raio_terra ** 2 - 2 * r * raio_terra * math.cos(theta))
-
     return distancia_final
 
 def status(dg):
@@ -85,11 +78,14 @@ def status(dg):
             print(f"A chegada ao satélite {dg[achar_id]['nome']} será em cerca de {h} horas e {m} minutos")
 
 def relatorio(dg):
-    for id_sat, total in dg.items():
-        print(f' \n'
-              f'{id_sat}')
-        for chave, valor in total.items():
-            print(f'  {chave}: {valor}')
+    if not dg:
+        print("Sem satélites cadastrados")
+    else:
+        for id_sat, total in dg.items():
+            print(f' \n'
+                  f'{id_sat}')
+            for chave, valor in total.items():
+                print(f'  {chave}: {valor}')
 
 def main():
     contador_id = 0
